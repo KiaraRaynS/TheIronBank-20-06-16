@@ -1,0 +1,16 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>TheIronBank</title>
+  <link rel='stylesheet' href="{% static 'appironbank/css/bootstrap.css' %}"/>
+    {% block headcontent %}
+    {% endblock %}
+</head>
+<div class='container'>
+  <body>
+    {% block bodycontent %}
+    {% endblock %}
+  </body>
+</div>
+</html>
