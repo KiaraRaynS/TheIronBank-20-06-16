@@ -1,5 +1,12 @@
 {% extends 'base.html' %}
 {% block bodycontent %}
-<p>Welcome</p>
-{{ request.user }}
+  <form action='' method='submit'>
+    {{ form.as_p }}
+    {% csrf_token %}
+  <input type='submit' value='Add Transaction'>
+  <br>
+  <h2>Past Transactions</h2>
+  {% for item in transactions %}
+      {{ item.date }}
+  {% endfor %}
 {% endblock %}

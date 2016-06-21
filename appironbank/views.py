@@ -3,6 +3,7 @@ from django.core.urlresolvers import reverse
 from django.views.generic import TemplateView, CreateView
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from appironbank.models import Transaction
 
 # Create your views here.
 
@@ -17,5 +18,17 @@ class SignUpView(CreateView):
     success_url = '/accounts/profile/'
 
 
-class ViewUserdata(TemplateView):
-    template_name = 'userdetail.html'
+class ViewUserdata(CreateView):
+    model = Transaction
+    fields = ['balancemod', 'transtype']
+    success_url = '/accounts/profile/'
+
+    def form_valid(self, form):
+        transaction = form.save(commit=False)
+        transaction.user = self.request.user
+        return super(ViewUserdata, self).form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        user = self.request.user
+        kwargs['transactions'] = Transaction.objects.filter(user=user)
+        return super(ViewUserdata, self).get_context_data(**kwargs)
