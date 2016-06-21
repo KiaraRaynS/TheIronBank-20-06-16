@@ -3,4 +3,8 @@ from appironbank.models import Transaction
 
 # Register your models here.
 
-admin.site.register([Transaction])
+
+class TransactionAdmin(admin.ModelAdmin):
+    list_display = ['user', 'balancemod', 'transtype']
+
+admin.site.register(Transaction, TransactionAdmin)

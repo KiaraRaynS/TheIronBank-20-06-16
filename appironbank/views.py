@@ -1,7 +1,7 @@
 import datetime
+from appironbank.forms import TransactionForm
 from django.db.models import Sum
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
 from django.views.generic import TemplateView, CreateView
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
@@ -29,6 +29,8 @@ class ViewUserdata(CreateView):
     def form_valid(self, form):
         balance = Transaction.objects.all().aggregate(Sum('balancemod'))
         transaction = form.save(commit=False)
+        if transaction.transtype == 'debit':
+            transaction.balancemod = -transaction.balancemod
         transaction.user = self.request.user
         if balance['balancemod__sum'] + transaction.balancemod < 0:
             raise ValidationError(('Invalid Value'), code='invalid')
@@ -44,17 +46,29 @@ class ViewUserdata(CreateView):
 
 
 class TransactionSend(CreateView):
-    model = Transaction
-    fields = ['balancemod', 'transtype', 'senduser']
+    form_class = TransactionForm
     success_url = '/accounts/profile'
+    template_name = 'appironbank/transaction_form.html'
 
     def form_valid(self, form):
         balance = Transaction.objects.filter(user=self.request.user).aggregate(Sum('balancemod'))
         transaction = form.save(commit=False)
-        transaction.user = self.request.user
         if balance['balancemod__sum'] + transaction.balancemod < 0:
             # Raise error
             pass
+        # for user sending funds
+        transaction.balancemod = -transaction.balancemod
+        transaction.user = self.request.user
+        transaction.transtype = 'debit'
+        # credit = recieve money
+        # debit = withdrawl
+
+        # for user recieving funds
+        sendto = User.objects.get(id=form.cleaned_data['sendto'])
+        balancemod = -transaction.balancemod
+        transtype = 'credit'
+        Transaction.objects.create(user=sendto, balancemod=balancemod, transtype=transtype)
+
         return super().form_valid(form)
 
 
