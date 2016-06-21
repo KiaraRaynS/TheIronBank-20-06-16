@@ -1,4 +1,4 @@
-from django.shortcuts import render
+import datetime
 from django.db.models import Sum
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
@@ -37,7 +37,8 @@ class ViewUserdata(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
-        context['transactions'] = Transaction.objects.filter(user=user)
+        cutoffdate = datetime.datetime.now() + datetime.timedelta(days=-30)
+        context['transactions'] = Transaction.objects.filter(user=user).filter(date__gt=cutoffdate)
         context['balance'] = Transaction.objects.filter(user=user).aggregate(Sum('balancemod'))
         return context
 
@@ -50,3 +51,9 @@ class TransactionInfo(TemplateView):
         transaction_id = self.kwargs['pk']
         context['transaction'] = Transaction.objects.get(id=transaction_id)
         return context
+
+
+class TransactionSend(CreateView):
+    model = Transaction
+    fields = ['id', 'balancemod', 'transtype']
+    pass
