@@ -35,10 +35,11 @@ class ViewUserdata(CreateView):
         return super(ViewUserdata, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         user = self.request.user
-        kwargs['transactions'] = Transaction.objects.filter(user=user)
-        balance = Transaction.objects.filter(user=user).aggregate(Sum('balancemod'))
-        return super(ViewUserdata, self).get_context_data(**kwargs)
+        context['transactions'] = Transaction.objects.filter(user=user)
+        context['balance'] = Transaction.objects.filter(user=user).aggregate(Sum('balancemod'))
+        return context
 
 
 class TransactionInfo(TemplateView):

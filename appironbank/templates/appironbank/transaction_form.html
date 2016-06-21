@@ -2,6 +2,7 @@
 
 {% block bodycontent %}
     <br>
+    <p> Current Balance: {{ balance.balancemod__sum }}</p>
     <h2>Past Transactions</h2>
       {% for item in transactions %}
         {% if item.transtype == 'credit' %}
