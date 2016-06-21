@@ -1,12 +1,6 @@
 {% extends 'base.html' %}
 
 {% block bodycontent %}
-{% if request.user == user %}
-  <form action="" method="post">
-    {{ form.as_p }}
-    {% csrf_token %}
-    <input type="submit" value="Complete Transaction">
-  </form>
     <br>
     <h2>Past Transactions</h2>
       {% for item in transactions %}
@@ -20,5 +14,12 @@
         <br>
         {% endif %}
       {% endfor %}
+      <br>
+  {% if request.user == user %}
+    <form action="" method="post">
+      {{ form.as_p }}
+      {% csrf_token %}
+      <input type="submit" value="Complete Transaction">
+    </form>
 {% endif %}
 {% endblock %}
