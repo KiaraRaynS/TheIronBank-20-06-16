@@ -34,7 +34,7 @@ class ViewUserdata(CreateView):
             if balance['balancemod__sum']+transaction.balancemod < 0:
                 raise ValidationError("Insufficient Funds")
         else:
-            transaction.transtype = transaction.balancemod
+            transaction.balancemod = transaction.balancemod
         transaction.user = self.request.user
 
         return super(ViewUserdata, self).form_valid(form)
