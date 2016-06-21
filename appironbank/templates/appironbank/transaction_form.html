@@ -11,11 +11,11 @@
     <h2>Past Transactions</h2>
       {% for item in transactions %}
         {% if item.transtype == 'credit' %}
-          {{ item.date }}
+        <a href="{% url 'index' %}transaction/{{item.id}}">{{ item.date }}</a>
           <b>{{ item.transtype }}</b>
           <br>
         {% elif item.transtype == 'debit' %}
-          {{ item.date }}
+        <a href="{% url 'index' %}transaction/{{item.id}}">{{ item.date }}</a>
           <b>{{ item.transtype }}</b>
         <br>
         {% endif %}

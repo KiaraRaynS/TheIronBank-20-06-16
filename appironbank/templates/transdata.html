@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+
+{% block bodycontent %}
+<h2>Transaction Id: {{ transaction.id }}</h2>
+<p>Transaction: {{ transaction.balancemod }}</p>
+<p>Type: {{ transaction.transtype }} </p>
+<p>Date processed: {{ transaction.date }}</p>
+{% endblock %}

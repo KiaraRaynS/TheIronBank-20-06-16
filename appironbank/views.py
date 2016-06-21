@@ -32,3 +32,13 @@ class ViewUserdata(CreateView):
         user = self.request.user
         kwargs['transactions'] = Transaction.objects.filter(user=user)
         return super(ViewUserdata, self).get_context_data(**kwargs)
+
+
+class TransactionInfo(TemplateView):
+    template_name = 'transdata.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        transaction_id = self.kwargs['pk']
+        context['transaction'] = Transaction.objects.get(id=transaction_id)
+        return context
