@@ -43,6 +43,21 @@ class ViewUserdata(CreateView):
         return context
 
 
+class TransactionSend(CreateView):
+    model = Transaction
+    fields = ['balancemod', 'transtype', 'senduser']
+    success_url = '/accounts/profile'
+
+    def form_valid(self, form):
+        balance = Transaction.objects.filter(user=self.request.user).aggregate(Sum('balancemod'))
+        transaction = form.save(commit=False)
+        transaction.user = self.request.user
+        if balance['balancemod__sum'] + transaction.balancemod < 0:
+            # Raise error
+            pass
+        return super().form_valid(form)
+
+
 class TransactionInfo(TemplateView):
     template_name = 'transdata.html'
 
@@ -51,9 +66,3 @@ class TransactionInfo(TemplateView):
         transaction_id = self.kwargs['pk']
         context['transaction'] = Transaction.objects.get(id=transaction_id)
         return context
-
-
-class TransactionSend(CreateView):
-    model = Transaction
-    fields = ['id', 'balancemod', 'transtype']
-    pass
