@@ -27,13 +27,16 @@ class ViewUserdata(CreateView):
     balance = 0
 
     def form_valid(self, form):
-        balance = Transaction.objects.all().aggregate(Sum('balancemod'))
+        balance = Transaction.objects.filter(user=self.request.user).aggregate(Sum('balancemod'))
         transaction = form.save(commit=False)
         if transaction.transtype == 'debit':
             transaction.balancemod = -transaction.balancemod
+            if balance['balancemod__sum']+transaction.balancemod < 0:
+                raise ValidationError("Insufficient Funds")
+        else:
+            transaction.transtype = transaction.balancemod
         transaction.user = self.request.user
-        if balance['balancemod__sum'] + transaction.balancemod < 0:
-            raise ValidationError(('Invalid Value'), code='invalid')
+
         return super(ViewUserdata, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
@@ -50,16 +53,22 @@ class TransactionSend(CreateView):
     success_url = '/accounts/profile'
     template_name = 'appironbank/transaction_form.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        context['balance'] = Transaction.objects.filter(user=user).aggregate(Sum('balancemod'))
+        return context
+
     def form_valid(self, form):
         balance = Transaction.objects.filter(user=self.request.user).aggregate(Sum('balancemod'))
         transaction = form.save(commit=False)
-        if balance['balancemod__sum'] + transaction.balancemod < 0:
-            # Raise error
-            pass
+
         # for user sending funds
         transaction.balancemod = -transaction.balancemod
         transaction.user = self.request.user
         transaction.transtype = 'debit'
+        if balance['balancemod__sum'] + transaction.balancemod < 0:
+            raise ValidationError("Insuffecient Funds")
         # credit = recieve money
         # debit = withdrawl
 
