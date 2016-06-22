@@ -34,7 +34,6 @@ class ViewUserdata(CreateView):
         if transaction.transtype == 'debit':
             transaction.balancemod = -transaction.balancemod
             if balance['balancemod__sum']+transaction.balancemod < 0:
-                # return HttpResponse('<h1>Insufficient Funds</h1>')
                 form.add_error('balancemod', 'Insufficient funds')
                 return self.form_invalid(form)
         else:
@@ -72,7 +71,8 @@ class TransactionSend(CreateView):
         transaction.user = self.request.user
         transaction.transtype = 'debit'
         if balance['balancemod__sum'] + transaction.balancemod < 0:
-            raise ValidationError('Insufficient Funds')
+            form.add_error('balancemod', 'Insufficient funds')
+            return self.form_invalid(form)
         # credit = recieve money
         # debit = withdrawl
 
