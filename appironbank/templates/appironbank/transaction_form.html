@@ -17,6 +17,7 @@
       {% endfor %}
       <br>
   {% if request.user == user %}
+    {{ form.balancemod.error }}
     <form action="" method="post">
       {{ form.as_p }}
       {% csrf_token %}

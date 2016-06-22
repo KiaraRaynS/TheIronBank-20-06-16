@@ -1,4 +1,6 @@
 import datetime
+from rest_framework.response import Response
+from django.contrib import messages
 from appironbank.forms import TransactionForm
 from django.db.models import Sum
 from django.core.exceptions import ValidationError
@@ -32,7 +34,9 @@ class ViewUserdata(CreateView):
         if transaction.transtype == 'debit':
             transaction.balancemod = -transaction.balancemod
             if balance['balancemod__sum']+transaction.balancemod < 0:
-                raise ValidationError("Insufficient Funds")
+                # return HttpResponse('<h1>Insufficient Funds</h1>')
+                form.add_error('balancemod', 'Insufficient funds')
+                return self.form_invalid(form)
         else:
             transaction.balancemod = transaction.balancemod
         transaction.user = self.request.user
@@ -68,7 +72,7 @@ class TransactionSend(CreateView):
         transaction.user = self.request.user
         transaction.transtype = 'debit'
         if balance['balancemod__sum'] + transaction.balancemod < 0:
-            raise ValidationError("Insuffecient Funds")
+            raise ValidationError('Insufficient Funds')
         # credit = recieve money
         # debit = withdrawl
 
